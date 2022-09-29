@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>game MIEM</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        
+        canvas {
+            height: 100vh;
+            width: 100vw;
+            background: #eee;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        body,
+        html {
+            height: 100%;
+            background: #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="myCanvas" width=700 height=700></canvas>
+
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        var ctx = canvas.getContext("2d");
+
+
+        //начальные координаты слова
+        var x = canvas.width / 2;
+        var y = canvas.height / 10;
+
+        //координаты счета
+        var xs = canvas.width * 0.1;
+        var ys = canvas.height / 12;
+
+        //скорость падения слова
+        var dy = 0.5;
+
+        //позиционирование кнопок
+        var paddleHeight = canvas.height / 7;
+        var paddleWidth = canvas.width / 2;
+        var left = 0;
+        var right = canvas.width / 2;
+        var rightPressed = false;
+        var leftPressed = false;
+        var mouseX = 0;
+        var mouseY = 0;
+        var index = 0;
+        var word = getWord(0);
+        var score = 0;
+        let arrSet = new Set(["append", "extend", "insert", "remove", "pop"]);
+        let listSet = new Set(["find", "rfind", "index", "rindex", "replace"]);
+
+        function drawLeft() {
+            ctx.beginPath();
+            ctx.rect(left, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+            ctx.fillStyle = "#A9A9A9";
+            ctx.fill();
+            ctx.strokeStyle = "#696969";
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.fillStyle = "#707070";
+            ctx.font = "bold 30pt Arial";
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            ctx.fillText("строки", paddleWidth / 2, canvas.height - paddleHeight + paddleHeight / 2);
+        }
+
+        function drawRight() {
+            ctx.beginPath();
+            ctx.rect(right, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+            ctx.fillStyle = "#A9A9A9";
+            ctx.fill();
+            ctx.strokeStyle = "#696969";
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.fillStyle = "#707070";
+            ctx.font = "bold 30pt Arial";
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            ctx.fillText("списки", paddleWidth / 2 + canvas.width / 2, canvas.height - paddleHeight + paddleHeight / 2);
+        }
+
+        function drawScore(score) {
+            ctx.fillStyle = "#707070";
+            ctx.font = "bold 20pt Arial";
+            ctx.textBaseline = "top";
+            ctx.textAlign = "left";
+            ctx.fillText("score: " + score, xs, ys);
+        }
+
+
+        function getWord(index) {
+            let arr = ["append", "extend", "insert", "remove", "pop", "find", "rfind", "index", "rindex", "replace"];
+            return arr[index % 10];
+        }
+
+        function drawWord(word) {
+            ctx.fillStyle = "#707070";
+            ctx.font = "bold 30pt Arial";
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            ctx.fillText(word, x, y);
+        }
+
+        function getNextWord() {
+            y = canvas.height / 8;
+            index++;
+            if (index >= 10) {
+                const params = new Proxy(new URLSearchParams(window.location.search), {
+                    get: (searchParams, prop) => searchParams.get(prop),
+                });
+                let id = params.id
+                if (id === null) {
+                    alert("Неизвестный id игрока");
+                } else {
+                    fetch('https://kadtr01.github.io/Page?id=' + id + '&score=' + score)
+                        .then(alert("Игра окончена! ваш счет: " + score));
+                }
+                document.location.reload();
+                clearInterval(interval);
+            }
+            word = getWord(index)
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawWord(word)
+            drawLeft();
+            drawRight();
+            drawScore(score);
+            y += dy;
+            if (y + dy >= 550) {
+                getNextWord()
+            }
+        }
+
+        function mouseMoveHandler(e) {
+            var relativeX = e.clientX - canvas.offsetLeft;
+            if (relativeX > 0 && relativeX < canvas.width) {
+                mouseX = relativeX - paddleWidth / 2;
+            }
+        }
+        document.addEventListener("click", mouseClickHandler, false);
+
+        function mouseClickHandler(e) {
+            var relativeX = e.clientX - canvas.offsetLeft;
+            var relativeY = e.clientY - canvas.offsetTop;
+            if (relativeY <= canvas.height && relativeY >= canvas.height - paddleHeight) {
+                if (relativeX >= 0 && relativeX <= paddleWidth) {
+                    leftPressed = true;
+                    rightPressed = false;
+                    if (arrSet.has(word)) {
+                        score++;
+                    }
+                    getNextWord()
+                } else if (relativeX >= paddleWidth && relativeX <= canvas.width) {
+                    rightPressed = true;
+                    leftPressed = false;
+                    if (listSet.has(word)) {
+                        score++;
+                    }
+                    getNextWord()
+                } else {
+                    leftPressed = false;
+                    rightPressed = false;
+                    alert('none');
+                }
+            }
+        }
+
+        function answer() {
+            if (rightPressed == true) {
+
+            } else if (leftPressed == true) {
+
+            }
+        }
+
+        draw();
+        setInterval(draw, 10);
+    </script>
+
+</body>
+
+</html>
