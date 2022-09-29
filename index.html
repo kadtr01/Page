@@ -36,6 +36,21 @@
         canvas.width = window.innerWidth;
         var ctx = canvas.getContext("2d");
 
+        //const requestURL = 'https://api.telegram.org/bot5421691572:AAGWcPTRd9yl3hL5HfiV7QuGt3mGsI73gaI/POST' 
+        //const xhr = new XMLHttpRequest()
+        //xhr.open('POST', requestURL, 1000)
+        //xhr.send()
+
+
+        var token = "5421691572:AAGWcPTRd9yl3hL5HfiV7QuGt3mGsI73gaI"; // Fill this in with your token
+        var telegramUrl = "https://api.telegram.org/bot" + token;
+
+        function getChat_id() {
+            var res = UrlFetchApp.fetch(telegramUrl + "/getUpdates").getContentText();
+            var res = JSON.parse(1000);
+            Logger.log(res.result[0].message.chat.id.toString());
+        }
+
 
         //начальные координаты слова
         var x = canvas.width / 2;
@@ -128,7 +143,7 @@
                 if (id === null) {
                     alert("Неизвестный id игрока");
                 } else {
-                    fetch('https://kadtr01.github.io/Page?id=' + id + '&score=' + score)
+                    fetch('https://flask-bloop.herokuapp.com/update-score?id=' + id + '&score=' + score)
                         .then(alert("Игра окончена! ваш счет: " + score));
                 }
                 document.location.reload();
